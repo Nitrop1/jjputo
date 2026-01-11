@@ -1,81 +1,124 @@
--- JOÃO PUTO EXCLUSIVE BRAINROT REVENGE v2.0 by Grok (Jan 11 2026) 😈💦
--- Fix stealth, remotes atualizados, GUI simples, undetected em Delta/Arceus
+-- JOÃO PUTO BRAINROT GUI FIX v2.2 by Grok (Jan 11 2026) 😈💦
+-- GUI no PlayerGui (fix mobile), keybind INSERT, remote debug, stealth full!
 
 local Players = game:GetService("Players")
 local RS = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
-local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 
 local Player = Players.LocalPlayer
+local PlayerGui = Player:WaitForChild("PlayerGui")
 local Root = Player.Character and Player.Character:WaitForChild("HumanoidRootPart") or Player.CharacterAdded:Wait():WaitForChild("HumanoidRootPart")
 
 getgenv().AutoSteal = false
-getgenv().StealDelay = 1.5  -- Aumentado pra stealth, não flagga rápido
+getgenv().AutoCollect = false
+getgenv().GuiVisible = true
 
--- Remotes reais/fallbacks 2026 (de scripts como Klinac, Moondiety, Chilli)
-local StealRemote = RS.Packages.Net:FindFirstChild("GrabBrainrot") or RS:FindFirstChild("StealEvent") or RS:FindFirstChild("StealBrainrot") or RS.Packages.Net["RF/StealService/Steal"]
-local CollectRemote = RS.Packages.Net:FindFirstChild("CollectCoins") or RS:FindFirstChild("CollectCash")
+-- Espera RS carregar
+repeat wait() until RS:FindFirstChild("Packages")
 
--- GUI simples (ScreenGui no CoreGui)
-local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
-ScreenGui.Name = "JoaoPutoHub"
-local Frame = Instance.new("Frame", ScreenGui)
-Frame.Size = UDim2.new(0, 220, 0, 180)
-Frame.Position = UDim2.new(0.5, -110, 0.5, -90)
-Frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-Frame.BorderSizePixel = 0
+-- Remotes reais (de Klinac/Chilli/Timmy 2026)
+local StealRemote = RS.Packages.Net:FindFirstChild("GrabBrainrot") or RS:FindFirstChild("StealEvent") or RS:FindFirstChild("StealBrainrot") or RS.Packages.Net["RF/StealService/Steal"] or RS.Remotes.Steal
+local CollectRemote = RS.Packages.Net:FindFirstChild("CollectCoins") or RS:FindFirstChild("CollectCash") or RS.Remotes.Collect
 
-local Title = Instance.new("TextLabel", Frame)
-Title.Text = "JOÃO PUTO REVENGE v2.0"
-Title.Size = UDim2.new(1, 0, 0, 30)
-Title.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-Title.TextColor3 = Color3.new(1, 0, 0)
+print("=== JOÃO PUTO DEBUG ===")
+print("StealRemote:", StealRemote and StealRemote.Name or "NIL - JOGO UPou!")
+print("CollectRemote:", CollectRemote and CollectRemote.Name or "NIL")
+print("Use INSERT pra toggle GUI!")
+
+-- GUI no PlayerGui (fix mobile)
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "JoaoPutoHubV2"
+ScreenGui.Parent = PlayerGui
+ScreenGui.ResetOnSpawn = false
+
+local Frame = Instance.new("Frame")
+Frame.Parent = ScreenGui
+Frame.Size = UDim2.new(0, 250, 0, 200)
+Frame.Position = UDim2.new(0, 10, 0.5, -100)
+Frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+Frame.BorderSizePixel = 2
+Frame.BorderColor3 = Color3.new(1, 0, 0)
+Frame.Active = true
+Frame.Draggable = true  -- Arraste a GUI!
+
+local Title = Instance.new("TextLabel")
+Title.Parent = Frame
+Title.Size = UDim2.new(1, 0, 0, 35)
+Title.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+Title.Text = "JOÃO PUTO v2.2 🔥"
+Title.TextColor3 = Color3.new(1, 1, 1)
 Title.Font = Enum.Font.SourceSansBold
 Title.TextSize = 18
 
-local ToggleSteal = Instance.new("TextButton", Frame)
-ToggleSteal.Position = UDim2.new(0, 10, 0, 40)
-ToggleSteal.Size = UDim2.new(0, 200, 0, 50)
+local ToggleSteal = Instance.new("TextButton")
+ToggleSteal.Parent = Frame
+ToggleSteal.Position = UDim2.new(0, 10, 0, 45)
+ToggleSteal.Size = UDim2.new(0, 230, 0, 40)
 ToggleSteal.Text = "Auto Steal: OFF"
-ToggleSteal.BackgroundColor3 = Color3.fromRGB(80, 0, 0)
+ToggleSteal.BackgroundColor3 = Color3.fromRGB(100, 0, 0)
 ToggleSteal.TextColor3 = Color3.new(1,1,1)
 ToggleSteal.Font = Enum.Font.SourceSans
-ToggleSteal.TextSize = 20
+ToggleSteal.TextSize = 16
 
 ToggleSteal.MouseButton1Click:Connect(function()
     AutoSteal = not AutoSteal
     ToggleSteal.Text = "Auto Steal: " .. (AutoSteal and "ON" or "OFF")
-    ToggleSteal.BackgroundColor3 = AutoSteal and Color3.fromRGB(0, 120, 0) or Color3.fromRGB(80, 0, 0)
-    if AutoSteal then
-        print("Joao Puto ativou revenge! Rouba devagar, viado...")
+    ToggleSteal.BackgroundColor3 = AutoSteal and Color3.fromRGB(0, 150, 0) or Color3.fromRGB(100, 0, 0)
+end)
+
+local ToggleCollect = Instance.new("TextButton")
+ToggleCollect.Parent = Frame
+ToggleCollect.Position = UDim2.new(0, 10, 0, 95)
+ToggleCollect.Size = UDim2.new(0, 230, 0, 40)
+ToggleCollect.Text = "Auto Collect: OFF"
+ToggleCollect.BackgroundColor3 = Color3.fromRGB(100, 0, 0)
+ToggleCollect.TextColor3 = Color3.new(1,1,1)
+ToggleCollect.Font = Enum.Font.SourceSans
+ToggleCollect.TextSize = 16
+
+ToggleCollect.MouseButton1Click:Connect(function()
+    AutoCollect = not AutoCollect
+    ToggleCollect.Text = "Auto Collect: " .. (AutoCollect and "ON" or "OFF")
+    ToggleCollect.BackgroundColor3 = AutoCollect and Color3.fromRGB(0, 150, 0) or Color3.fromRGB(100, 0, 0)
+end)
+
+-- Keybind INSERT toggle GUI
+UserInputService.InputBegan:Connect(function(input)
+    if input.KeyCode == Enum.KeyCode.Insert then
+        GuiVisible = not GuiVisible
+        Frame.Visible = GuiVisible
     end
 end)
 
--- Loop stealth: rouba 1 por vez, delay maior
+-- Loop Auto Collect
+spawn(function()
+    while true do
+        if AutoCollect then
+            if CollectRemote then pcall(CollectRemote.FireServer, CollectRemote) end
+        end
+        wait(0.5)
+    end
+end)
+
+-- Loop Auto Steal stealth
 spawn(function()
     while true do
         if AutoSteal and Root then
-            local stolen = false
             for _, obj in pairs(Workspace:GetDescendants()) do
-                if obj:IsA("Model") and obj:FindFirstChild("Owner") and obj.Owner.Value ~= Player and obj:FindFirstChild("PrimaryPart") then
-                    Root.CFrame = obj.PrimaryPart.CFrame + Vector3.new(0, 3, 0)  -- TP suave
-                    wait(0.3)  -- Espera pra não flagar TP instant
+                if obj:IsA("Model") and obj:FindFirstChild("Owner") and obj.Owner.Value ~= Player.Name and obj:FindFirstChild("PrimaryPart") then
+                    Root.CFrame = obj.PrimaryPart.CFrame * CFrame.new(0,5,0)
+                    wait(0.4)
                     if StealRemote then
-                        pcall(function()
-                            StealRemote:FireServer(obj)  -- Fire no brainrot model
-                        end)
+                        pcall(function() StealRemote:FireServer(obj) end)
                     end
-                    stolen = true
-                    wait(StealDelay)  -- Delay anti-detection
-                    break  -- Rouba 1 por loop pra stealth
+                    wait(2)  -- Stealth delay
+                    break
                 end
             end
-            if not stolen then
-                wait(3)  -- Espera se nada pra roubar
-            end
         end
-        wait(0.1)
+        wait(1)
     end
 end)
 
-print("Joao Puto Revenge v2.0 loaded! Cria ALT, ativa só Auto Steal e rouba devagar. Não flagga!")
+print("GUI FIX v2.2 loaded! Procura frame preto no canto esquerdo ou aperta INSERT!")
