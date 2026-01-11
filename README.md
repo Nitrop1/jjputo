@@ -1,0 +1,2 @@
+# jjputo
+SCRIPT DO JJPUTO BRAINROT
